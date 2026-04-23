@@ -9,5 +9,11 @@
             "entrypoint": "backend",
             "routePrefix": "/_/backend"
         }
-    }
+    },
+    "rewrites": [
+        { "source": "/health", "destination": "/_/backend/health" },
+        { "source": "/standards", "destination": "/_/backend/standards" },
+        { "source": "/predict", "destination": "/_/backend/predict" },
+        { "source": "/optimize", "destination": "/_/backend/optimize" }
+    ]
 }
