@@ -1,0 +1,308 @@
+# 🧠 AI Concrete Mix Design Optimizer — Specification Document
+
+## 1. Overview
+
+The goal is to build an AI-powered application that assists in concrete mix design by:
+
+1. Predicting compressive strength from a given mix (Forward Prediction)
+2. Suggesting an optimal mix for a desired strength (Optimization)
+
+The system combines a regression model with a search-based optimization algorithm to reduce trial-and-error in concrete design.
+
+---
+
+## 2. Core Features
+
+### 2.1 Mode A — Strength Prediction
+
+**Description:**
+Predict compressive strength based on user-provided mix proportions.
+
+**Input:**
+
+* Cement (kg/m³)
+* Water (kg/m³)
+* Fine Aggregate (kg/m³)
+* Coarse Aggregate (kg/m³)
+* Superplasticizer (kg/m³)
+* Age (days)
+
+**Output:**
+
+* Predicted Compressive Strength (MPa)
+* Optional: error/confidence estimate
+
+---
+
+### 2.2 Mode B — Mix Optimization
+
+**Description:**
+Suggest mix proportions that achieve a target compressive strength.
+
+**Input:**
+
+* Target Strength (MPa)
+* Optional constraints:
+
+  * Max cement
+  * Water-cement ratio range
+
+**Output:**
+
+* Suggested Mix:
+
+  * Cement
+  * Water
+  * Fine Aggregate
+  * Coarse Aggregate
+  * Superplasticizer
+* Predicted Strength
+* Water-Cement Ratio
+
+---
+
+## 3. System Architecture
+
+### Components:
+
+1. **ML Model (Python)**
+
+   * Regression model (Random Forest)
+   * Trained on historical dataset
+
+2. **Backend API**
+
+   * Handles prediction and optimization
+   * Communicates with ML model
+
+3. **Frontend UI (React)**
+
+   * User input forms
+   * Displays results
+
+---
+
+### Data Flow:
+
+User Input → Backend API → ML Model → Prediction/Optimization → Response → UI
+
+---
+
+## 4. Machine Learning Model
+
+### Type:
+
+* Random Forest Regressor
+
+### Input Features:
+
+* cement
+* water
+* fine_aggregate
+* coarse_aggregate
+* superplasticizer
+* age
+
+### Target:
+
+* compressive_strength (MPa)
+
+### Training Steps:
+
+1. Load dataset (CSV)
+2. Split into train/test
+3. Train model
+4. Evaluate using MAE
+5. Save model (`.pkl`)
+
+---
+
+## 5. Optimization Logic
+
+### Approach:
+
+Search-based optimization using the trained regression model.
+
+---
+
+### Steps:
+
+1. Define realistic ranges:
+
+   * Cement: 200–500
+   * Water: 120–250
+   * Fine Aggregate: 600–900
+   * Coarse Aggregate: 800–1200
+   * Superplasticizer: 0–20
+
+2. Generate candidate mixes:
+
+   * Use random sampling (e.g., 1000 samples)
+
+3. Apply constraints:
+
+   * Water/Cement ratio between 0.3–0.6
+
+4. For each candidate:
+
+   * Predict strength using model
+   * Compute error = |predicted - target|
+
+5. Select best mix:
+
+   * Minimum error
+
+---
+
+### Pseudocode:
+
+```
+best_mix = null
+best_error = infinity
+
+for i in range(N):
+    mix = generate_random_mix()
+
+    if not valid(mix):
+        continue
+
+    pred = model.predict(mix)
+    error = abs(pred - target)
+
+    if error < best_error:
+        best_mix = mix
+        best_error = error
+
+return best_mix
+```
+
+---
+
+## 6. API Design
+
+### POST /predict
+
+**Request:**
+
+```
+{
+  "cement": number,
+  "water": number,
+  "fine_aggregate": number,
+  "coarse_aggregate": number,
+  "superplasticizer": number,
+  "age": number
+}
+```
+
+**Response:**
+
+```
+{
+  "predicted_strength": number
+}
+```
+
+---
+
+### POST /optimize
+
+**Request:**
+
+```
+{
+  "target_strength": number
+}
+```
+
+**Response:**
+
+```
+{
+  "mix": {
+    "cement": number,
+    "water": number,
+    "fine_aggregate": number,
+    "coarse_aggregate": number,
+    "superplasticizer": number
+  },
+  "predicted_strength": number,
+  "water_cement_ratio": number
+}
+```
+
+---
+
+## 7. Frontend Requirements
+
+### Pages / Components:
+
+1. **Prediction Form**
+
+   * Input fields for mix
+   * Submit → show predicted strength
+
+2. **Optimization Form**
+
+   * Input target strength
+   * Submit → show suggested mix
+
+---
+
+## 8. Constraints & Engineering Rules
+
+* Water/Cement ratio: 0.3 ≤ w/c ≤ 0.6
+* All values must be positive
+* Age typically: 1–90 days
+
+---
+
+## 9. Evaluation
+
+* Metric: Mean Absolute Error (MAE)
+* Validate predictions with test dataset
+* Show example cases in UI/report
+
+---
+
+## 10. Tech Stack
+
+### Recommended:
+
+* ML: Python (scikit-learn)
+* Backend: FastAPI
+* Frontend: React (TypeScript)
+
+---
+
+## 11. Deliverables
+
+* Working application (UI + API)
+* Trained ML model
+* Example test cases
+* Report explaining:
+
+  * Model
+  * Optimization method
+  * Results
+
+---
+
+## 12. Key Concept Summary
+
+* Regression model → predicts strength
+* Optimization → searches for best mix
+* Constraints → ensure realistic engineering solutions
+
+---
+
+## 13. Future Improvements (Optional)
+
+* Add cost optimization
+* Add durability constraints
+* Use advanced optimization (genetic algorithms)
+* Expand dataset
+
+---
+
+## END
