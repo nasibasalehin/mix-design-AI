@@ -21,8 +21,19 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, model_validator
 
-MODEL_PATH = Path(__file__).parent.parent / "ml" / "concrete_model.pkl"
-METRICS_PATH = Path(__file__).parent.parent / "ml" / "metrics.json"
+#
+# NOTE (deployment):
+# - In local development, artifacts live in repo-root `ml/`.
+# - On Vercel (or other "service folder" deployments), only `backend/` may be packaged.
+#   To make deployment robust, we also look for artifacts under `backend/ml/`.
+#
+_ROOT_MODEL_PATH = Path(__file__).parent.parent / "ml" / "concrete_model.pkl"
+_ROOT_METRICS_PATH = Path(__file__).parent.parent / "ml" / "metrics.json"
+_BACKEND_MODEL_PATH = Path(__file__).parent / "ml" / "concrete_model.pkl"
+_BACKEND_METRICS_PATH = Path(__file__).parent / "ml" / "metrics.json"
+
+MODEL_PATH = _BACKEND_MODEL_PATH if _BACKEND_MODEL_PATH.exists() else _ROOT_MODEL_PATH
+METRICS_PATH = _BACKEND_METRICS_PATH if _BACKEND_METRICS_PATH.exists() else _ROOT_METRICS_PATH
 
 try:
     with open(MODEL_PATH, "rb") as f:

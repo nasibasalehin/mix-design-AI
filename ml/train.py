@@ -35,6 +35,9 @@ TARGET = "compressive_strength"
 UCI_PATH = Path(__file__).parent.parent / "uci_dataset" / "Concrete_Data.xls"
 MODEL_PATH = Path(__file__).parent / "concrete_model.pkl"
 METRICS_PATH = Path(__file__).parent / "metrics.json"
+BACKEND_ML_DIR = Path(__file__).parent.parent / "backend" / "ml"
+BACKEND_MODEL_PATH = BACKEND_ML_DIR / "concrete_model.pkl"
+BACKEND_METRICS_PATH = BACKEND_ML_DIR / "metrics.json"
 
 
 def load_data():
@@ -133,6 +136,15 @@ def main():
     with open(METRICS_PATH, "w") as f:
         json.dump(metrics, f, indent=2)
     print(f"Metrics saved → {METRICS_PATH}")
+
+    # Also write copies under backend/ for service-folder deployments (e.g., Vercel).
+    BACKEND_ML_DIR.mkdir(parents=True, exist_ok=True)
+    with open(BACKEND_MODEL_PATH, "wb") as f:
+        pickle.dump(pipeline, f)
+    with open(BACKEND_METRICS_PATH, "w") as f:
+        json.dump(metrics, f, indent=2)
+    print(f"Model copied → {BACKEND_MODEL_PATH}")
+    print(f"Metrics copied → {BACKEND_METRICS_PATH}")
 
     # --- Example predictions ------------------------------------------------
     print("\n=== Example predictions (NS-EN 206 strength classes) ===")
