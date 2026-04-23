@@ -20,9 +20,12 @@ build/
 .coverage
 htmlcov/
 
-# ML training outputs (regenerate with ml/train.py)
-ml/concrete_model.pkl
-ml/metrics.json
+# ML training outputs
+# NOTE: For Vercel deployment we keep the trained artifacts tracked,
+# so the backend can load the model in production.
+# If you want to ignore them again later, uncomment the next two lines.
+# ml/concrete_model.pkl
+# ml/metrics.json
 
 # Node / frontend
 node_modules/
